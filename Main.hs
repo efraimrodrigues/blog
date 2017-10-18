@@ -61,6 +61,32 @@ main = hakyll $ do
                 >>= loadAndApplyTemplate "templates/default.html" (homeCtx tags list)
                 >>= relativizeUrls
 
+    -- Contact
+    create ["contact.html"] $ do
+        route idRoute
+        compile $ do
+            posts <- loadAll "posts/*"
+            sorted <- take 10 <$> recentFirst posts
+            itemTpl <- loadBody "templates/postitem.html"
+            list <- applyTemplateList itemTpl postCtx sorted
+            makeItem list
+                >>= loadAndApplyTemplate "templates/contact.html" defaultContext
+                >>= loadAndApplyTemplate "templates/default.html" defaultContext
+                >>= relativizeUrls
+
+    -- CV
+    create ["cv.html"] $ do
+        route idRoute
+        compile $ do
+            posts <- loadAll "posts/*"
+            sorted <- take 10 <$> recentFirst posts
+            itemTpl <- loadBody "templates/postitem.html"
+            list <- applyTemplateList itemTpl postCtx sorted
+            makeItem list
+                >>= loadAndApplyTemplate "templates/cv.html" defaultContext
+                >>= loadAndApplyTemplate "templates/default.html" defaultContext
+                >>= relativizeUrls
+
     -- Post tags
     tagsRules tags $ \tag pattern -> do
         let title = "Posts tagged " ++ tag
@@ -76,22 +102,6 @@ main = hakyll $ do
                         (constField "title" title `mappend`
                             defaultContext)
                 >>= relativizeUrls
-
-
-    -- Render RSS feed
-    create ["rss.xml"] $ do
-        route idRoute
-        compile $ do
-            posts <- loadAllSnapshots "posts/*" "content"
-            sorted <- take 10 <$> recentFirst posts
-            renderRss feedConfiguration feedCtx (take 10 sorted)
-
-    create ["atom.xml"] $ do
-        route idRoute
-        compile $ do
-            posts <- loadAllSnapshots "posts/*" "content"
-            sorted <- take 10 <$> recentFirst posts
-            renderAtom feedConfiguration feedCtx sorted
 
     -- Read templates
     match "templates/*" $ compile templateCompiler
