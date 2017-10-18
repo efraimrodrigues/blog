@@ -5,11 +5,12 @@
 
 # Build
 
-	blog build
+	stack init
+	stack build
 
 # Preview
-
-	blog watch
+	stack exec blog build
+	stack exec blog watch
 
 # Create a new article
 
