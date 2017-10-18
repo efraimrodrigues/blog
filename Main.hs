@@ -1,10 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+
+--------------------------------------------------------------------------------
+
 import Data.Functor ((<$>))
 import Data.List (isPrefixOf)
 import Data.Monoid (mappend)
 import Data.Text (pack, unpack, replace, empty)
+
+import           System.FilePath (replaceExtension, takeDirectory)
+import qualified System.Process  as Process
+import qualified Text.Pandoc     as Pandoc
+
+--------------------------------------------------------------------------------
 
 import Hakyll
 
@@ -19,7 +28,7 @@ main = hakyll $ do
         compile compressCssCompiler
 
     -- Copy Files
-    match "files/**" $ do
+    match ("favicon.ico" .||. "files/**") $ do
         route   idRoute
         compile copyFileCompiler
 
@@ -43,9 +52,12 @@ main = hakyll $ do
             sorted <- recentFirst posts
             itemTpl <- loadBody "templates/postitem.html"
             list <- applyTemplateList itemTpl postCtx sorted
+            let postsCtx =
+                    constField "tab_posts" "" `mappend`
+                    allPostsCtx
             makeItem list
-                >>= loadAndApplyTemplate "templates/posts.html" allPostsCtx
-                >>= loadAndApplyTemplate "templates/default.html" allPostsCtx
+                >>= loadAndApplyTemplate "templates/posts.html" postsCtx
+                >>= loadAndApplyTemplate "templates/default.html" postsCtx
                 >>= relativizeUrls
 
     -- Index
@@ -56,36 +68,55 @@ main = hakyll $ do
             sorted <- take 10 <$> recentFirst posts
             itemTpl <- loadBody "templates/postitem.html"
             list <- applyTemplateList itemTpl postCtx sorted
+            let indexCtx =
+                    constField "tab_index" "" `mappend`
+                    (homeCtx tags list)
             makeItem list
-                >>= loadAndApplyTemplate "templates/index.html" (homeCtx tags list)
-                >>= loadAndApplyTemplate "templates/default.html" (homeCtx tags list)
+                >>= loadAndApplyTemplate "templates/index.html" indexCtx
+                >>= loadAndApplyTemplate "templates/default.html" indexCtx
                 >>= relativizeUrls
 
     -- Contact
     create ["contact.html"] $ do
         route idRoute
         compile $ do
+            let contactCtx =
+                    constField "tab_contact" "" `mappend`
+                    constField "title" "Contact" `mappend`
+                    defaultContext
             posts <- loadAll "posts/*"
             sorted <- take 10 <$> recentFirst posts
             itemTpl <- loadBody "templates/postitem.html"
             list <- applyTemplateList itemTpl postCtx sorted
             makeItem list
-                >>= loadAndApplyTemplate "templates/contact.html" defaultContext
-                >>= loadAndApplyTemplate "templates/default.html" defaultContext
+                >>= loadAndApplyTemplate "templates/contact.html" contactCtx
+                >>= loadAndApplyTemplate "templates/default.html" contactCtx
                 >>= relativizeUrls
 
     -- CV
     create ["cv.html"] $ do
         route idRoute
         compile $ do
+            let cvCtx =
+                    constField "tab_cv" "" `mappend`
+                    defaultContext
             posts <- loadAll "posts/*"
             sorted <- take 10 <$> recentFirst posts
             itemTpl <- loadBody "templates/postitem.html"
             list <- applyTemplateList itemTpl postCtx sorted
             makeItem list
-                >>= loadAndApplyTemplate "templates/cv.html" defaultContext
-                >>= loadAndApplyTemplate "templates/default.html" defaultContext
+                >>= loadAndApplyTemplate "templates/cv.html" cvCtx
+                >>= loadAndApplyTemplate "templates/default.html" cvCtx
                 >>= relativizeUrls
+
+    -- CV as PDF
+    match "cv.md" $ version "pdf" $ do
+        route   $ setExtension ".pdf"
+        compile $ do getResourceBody
+            >>= readPandoc
+            >>= (return . fmap writeXeTex)
+            >>= loadAndApplyTemplate "templates/cv.tex" defaultContext
+            >>= xelatex
 
     -- Post tags
     tagsRules tags $ \tag pattern -> do
@@ -103,8 +134,17 @@ main = hakyll $ do
                             defaultContext)
                 >>= relativizeUrls
 
+    -- Render the 404 page
+    match "404.html" $ do
+        route idRoute
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+
     -- Read templates
     match "templates/*" $ compile templateCompiler
+
+writeXeTex =
+        Pandoc.writeLaTeX Pandoc.def {Pandoc.writerTeXLigatures = False}
 
 postCtx :: Context String
 postCtx =
@@ -113,13 +153,13 @@ postCtx =
 
 allPostsCtx :: Context String
 allPostsCtx =
-    constField "title" "All posts" `mappend`
+    constField "title" "Blog" `mappend`
     postCtx
 
 homeCtx :: Tags -> String -> Context String
 homeCtx tags list =
     constField "posts" list `mappend`
-    constField "title" "Index" `mappend`
+    constField "title" "Home" `mappend`
     field "taglist" (\_ -> renderTagList tags) `mappend`
     defaultContext
 
@@ -135,11 +175,11 @@ tagsCtx tags =
 
 feedConfiguration :: FeedConfiguration
 feedConfiguration = FeedConfiguration
-    { feedTitle       = "Clément Delafargue - RSS feed"
-    , feedDescription = "Musings about FP and CS"
-    , feedAuthorName  = "Clément Delafargue"
-    , feedAuthorEmail = "clement+blog@delafargue.name"
-    , feedRoot        = "http://blog.clement.delafargue.name"
+    { feedTitle       = "Efraim Rodrigues - RSS feed"
+    , feedDescription = ""
+    , feedAuthorName  = "Efraim Rodrigues"
+    , feedAuthorEmail = "efraimnaassom@gmail.com"
+    , feedRoot        = "http://erodrigues.xyz"
     }
 
 externalizeUrls :: String -> Item String -> Compiler (Item String)
@@ -152,7 +192,24 @@ externalizeUrlsWith root = withUrls ext
   where
     ext x = if isExternal x then x else root ++ x
 
--- TODO: clean me
+
+--------------------------------------------------------------------------------
+-- | Hacky.
+xelatex :: Item String -> Compiler (Item TmpFile)
+xelatex item = do
+    TmpFile texPath <- newTmpFile "xelatex.tex"
+    let tmpDir  = takeDirectory texPath
+        pdfPath = replaceExtension texPath "pdf"
+
+    unsafeCompiler $ do
+        writeFile texPath $ itemBody item
+        _ <- Process.system $ unwords ["xelatex", "-halt-on-error",
+            "-output-directory", tmpDir, texPath, ">/dev/null", "2>&1"]
+        return ()
+
+    makeItem $ TmpFile pdfPath
+
+--------------------------------------------------------------------------------
 unExternalizeUrls :: String -> Item String -> Compiler (Item String)
 unExternalizeUrls root item = return $ fmap (unExternalizeUrlsWith root) item
 

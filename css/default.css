@@ -62,6 +62,7 @@ nav a {
     color: #000;
     text-decoration: none;
     padding: 0 2em;
+    position: relative;
 }
 
 nav a:hover {
@@ -104,4 +105,30 @@ ins {
 ins::before {
     font-weight: bold;
     content: ">> ";
+}
+
+.is-active {
+    color: #848484;
+}
+
+.is-active::after {
+    height: 0px;
+    width: 100%;
+    display: block;
+    content: " ";
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    background: #848484;
+    -webkit-animation: border-expand .2s cubic-bezier(.4,0,.4,1).01s alternate forwards;
+    animation: border-expand .2s cubic-bezier(.4,0,.4,1).01s alternate forwards;
+    transition: all 1s cubic-bezier(.4,0,1,1);
+}
+
+blockquote {
+    background: #e6e6e6 url(../images/quote-background.png) no-repeat left top;
+    font-style: italic;
+    margin-left: 18px;
+    padding: 6px 6px 6px 54px;
+    width: 30%;
 }

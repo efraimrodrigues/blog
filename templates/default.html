@@ -17,36 +17,54 @@
     </header>
     <nav>
         <menu>
-          <a href="/">Home</a>
-          <a href="/posts.html">Archive</a>
-          <a href="/cv.html">CV</a>
-          <a href="/contact.html">Contact</a>
+            $if(tab_index)$
+                <a class="is-active" href="/">Home</a>
+            $else$
+                <a href="/">Home</a>
+            $endif$
+
+            $if(tab_posts)$
+                <a class="is-active" href="/posts.html">Blog</a>
+            $else$
+                <a href="/posts.html">Blog</a>
+            $endif$
+
+            <!--$if(tab_cv)$
+                <a class="is-active" href="/cv.html">CV</a>
+            $else$
+                <a href="/cv.html">CV</a>
+            $endif$-->
+
+            $if(tab_contact)$
+                <a class="is-active" href="/contact.html">Contact</a>
+            $else$
+                <a href="/contact.html">Contact</a>
+            $endif$
         </menu>
     </nav>
     <section>
         $body$
     </section>
     <footer>
-        <p>
-        <a href="http://jaspervdj.be/hakyll/index.html">Generated with Hakyll</a> -
-        <a href="http://github.com/efraimrodrigues/blog">Source code</a>
+        <p style="font-size: small;">
+        
+        <a href="http://github.com/efraimrodrigues/" target="_blank">GitHub<img width="2%" src="/files/GitHub-Mark-64px.png"/></a> -
+        <a href="http://github.com/efraimrodrigues/blog">Source code</a> -
+        <a href="http://jaspervdj.be/hakyll/index.html">Generated with Hakyll</a>
         </p>
-        <p>
+        <!--<p>
             <h4>BTC</h4>
             <img src="/files/bitcoin.png" alt="bitcoin" />
-        </p>
+        </p>-->
         <p>
         <a rel="license"
             href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"><img
             alt="Creative Commons License" style="border-width:0"
-            src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a><br />This
-        work is licensed under a <a rel="license"
-            href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative
-            Commons Attribution-ShareAlike 3.0 Unported License</a>.
+            src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a>
         </p>
 
     </footer>
-    <script type="text/javascript">
+    <!--<script type="text/javascript">
 
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-9207155-5']);
@@ -58,6 +76,6 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
 
-    </script>
+    </script>-->
 </body>
 </html>
