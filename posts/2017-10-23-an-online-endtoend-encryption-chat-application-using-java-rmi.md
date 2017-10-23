@@ -3,7 +3,7 @@ title: An online end-to-end encryption chat application using Java RMI
 author: Efraim Rodrigues
 tags: java, rmi, encryption
 ---
-Code available on <a href="http://github.com/efraimrodrigues/chatRMI" target="_blank">GitHub<img width="2%" src="/files/GitHub-Mark-64px.png"/></a>
+Available on <a href="http://github.com/efraimrodrigues/chatRMI" target="_blank">GitHub<img width="2%" src="/files/GitHub-Mark-64px.png"/></a>
 
 ## An online end-to-end encryption chat application using Java RMI
 
@@ -24,6 +24,9 @@ Java RMI classes must extends from the <code>java.rmi.Remote</code> class.
 ## Implementation
 ***
 ### Server side
+
+Server available on <a href="https://github.com/efraimrodrigues/chatRMI/tree/master/src/serverrmi" target="_blank">GitHub<img width="2%" src="/files/GitHub-Mark-64px.png"/></a>
+
 As stated before, Java RMI applications implement a client and server. Before proceeding to the central object of the server, let's lay eyes on <code>ChatConUserInterface</code>.  This interface represents a user.
 
 	public interface ChatConUserInterface extends Remote,Serializable  {
@@ -87,5 +90,9 @@ Returns the public key of a certain user
 Simply returns true if user is online, false otherwise
 	
 ### Client side
-Perhaps the client side application is the simplest one because it will only use what is already implemented. For this, it is only required that <code>ChatConInterface</code> and <code>ChatConUserInterface</code> are visible.
 
+Client available on <a href="https://github.com/efraimrodrigues/chatRMI/tree/master/src/chatrmi" target="_blank">GitHub<img width="2%" src="/files/GitHub-Mark-64px.png"/></a>
+
+Perhaps the client side application is the simplest one because it will only use what is already implemented. For this, it is only required that <code>ChatConInterface</code> and <code>ChatConUserInterface</code> are visible. The client application was built upon the JavaFX platform. 
+
+![RMI Client Application](/files/rmiclient.png)
