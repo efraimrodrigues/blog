@@ -28,7 +28,7 @@ main = hakyll $ do
         compile compressCssCompiler
 
     -- Copy Files
-    match ("favicon.ico" .||. "files/**") $ do
+    match ("favicon.ico" .||. "files/**" .||. "img/**" .||. "js/**" .||. "scss/**" .||. "vendor/**" .||. "gulpfile.js") $ do
         route   idRoute
         compile copyFileCompiler
 
@@ -52,12 +52,9 @@ main = hakyll $ do
             sorted <- recentFirst posts
             itemTpl <- loadBody "templates/postitem.html"
             list <- applyTemplateList itemTpl postCtx sorted
-            let postsCtx =
-                    constField "tab_posts" "" `mappend`
-                    allPostsCtx
             makeItem list
-                >>= loadAndApplyTemplate "templates/posts.html" postsCtx
-                >>= loadAndApplyTemplate "templates/default.html" postsCtx
+                >>= loadAndApplyTemplate "templates/posts.html" allPostsCtx
+                >>= loadAndApplyTemplate "templates/default.html" allPostsCtx
                 >>= relativizeUrls
 
     -- Index
@@ -76,47 +73,30 @@ main = hakyll $ do
                 >>= loadAndApplyTemplate "templates/default.html" indexCtx
                 >>= relativizeUrls
 
-    -- Contact
-    create ["contact.html"] $ do
-        route idRoute
-        compile $ do
-            let contactCtx =
-                    constField "tab_contact" "" `mappend`
-                    constField "title" "Contact" `mappend`
-                    defaultContext
-            posts <- loadAll "posts/*"
-            sorted <- take 10 <$> recentFirst posts
-            itemTpl <- loadBody "templates/postitem.html"
-            list <- applyTemplateList itemTpl postCtx sorted
-            makeItem list
-                >>= loadAndApplyTemplate "templates/contact.html" contactCtx
-                >>= loadAndApplyTemplate "templates/default.html" contactCtx
-                >>= relativizeUrls
-
     -- CV
-    create ["cv.html"] $ do
-        route idRoute
-        compile $ do
-            let cvCtx =
-                    constField "tab_cv" "" `mappend`
-                    defaultContext
-            posts <- loadAll "posts/*"
-            sorted <- take 10 <$> recentFirst posts
-            itemTpl <- loadBody "templates/postitem.html"
-            list <- applyTemplateList itemTpl postCtx sorted
-            makeItem list
-                >>= loadAndApplyTemplate "templates/cv.html" cvCtx
-                >>= loadAndApplyTemplate "templates/default.html" cvCtx
-                >>= relativizeUrls
+    -- create ["cv.html"] $ do
+    --    route idRoute
+    --    compile $ do
+    --        let cvCtx =
+    --               constField "tab_cv" "" `mappend`
+    --                defaultContext
+    --        posts <- loadAll "posts/*"
+    --        sorted <- take 10 <$> recentFirst posts
+    --        itemTpl <- loadBody "templates/postitem.html"
+    --        list <- applyTemplateList itemTpl postCtx sorted
+    --        makeItem list
+    --            >>= loadAndApplyTemplate "templates/cv.html" cvCtx
+    --            >>= loadAndApplyTemplate "templates/default.html" cvCtx
+    --            >>= relativizeUrls
 
     -- CV as PDF
-    match "cv.md" $ version "pdf" $ do
-        route   $ setExtension ".pdf"
-        compile $ do getResourceBody
-            >>= readPandoc
-            >>= (return . fmap writeXeTex)
-            >>= loadAndApplyTemplate "templates/cv.tex" defaultContext
-            >>= xelatex
+    --match "cv.md" $ version "pdf" $ do
+    --    route   $ setExtension ".pdf"
+    --    compile $ do getResourceBody
+    --        >>= readPandoc
+    --        >>= (return . fmap writeXeTex)
+    --        >>= loadAndApplyTemplate "templates/cv.tex" defaultContext
+    --        >>= xelatex
 
     -- Post tags
     tagsRules tags $ \tag pattern -> do
@@ -131,7 +111,9 @@ main = hakyll $ do
                             defaultContext)
                 >>= loadAndApplyTemplate "templates/default.html"
                         (constField "title" title `mappend`
+                            constField "tab_posts" "" `mappend`
                             defaultContext)
+                        
                 >>= relativizeUrls
 
     -- Render the 404 page
@@ -139,6 +121,7 @@ main = hakyll $ do
         route idRoute
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= relativizeUrls
 
     -- Read templates
     match "templates/*" $ compile templateCompiler
@@ -155,6 +138,7 @@ postCtx =
 allPostsCtx :: Context String
 allPostsCtx =
     constField "title" "Blog" `mappend`
+    constField "tab_posts" "" `mappend`
     postCtx
 
 homeCtx :: Tags -> String -> Context String
@@ -172,6 +156,7 @@ feedCtx =
 tagsCtx :: Tags -> Context String
 tagsCtx tags =
     tagsField "prettytags" tags `mappend`
+    constField "tab_posts" "" `mappend`
     postCtx
 
 feedConfiguration :: FeedConfiguration
