@@ -5,8 +5,6 @@ tags: java, rmi, encryption
 ---
 Available on <a href="http://github.com/efraimrodrigues/chatRMI" target="_blank">GitHub<img width="2%" src="/files/GitHub-Mark-64px.png"/></a>
 
-## An online end-to-end encryption chat application using Java RMI
-
 ### Intro
 Let's take the typical Alice and Bob scenario for instance. In this scenario Bob wants to communicate with Alice in a secure way. A client/server application is enough to satisfy Alice's and Bob's needs. However, end to end encryption will be used to ensure a man-in-the-middle attack is not feasible. So, this will be a real time chat which will have its messages centralized in the server.  The centralized messages must be encrypted in a way only the clients are able to decipher them. Sender and receiver information will be encrypted too.
 

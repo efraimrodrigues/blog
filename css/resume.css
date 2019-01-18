@@ -191,3 +191,7 @@ a {
 a:hover, a:focus, a:active {
   color: #2cb5e8;
 }
+
+pre, code {
+  background: #e9ecef;
+}

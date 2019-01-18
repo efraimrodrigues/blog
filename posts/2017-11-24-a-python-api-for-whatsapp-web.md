@@ -8,8 +8,6 @@ tags: python, whatsapp, javascript
 
 Available on <a href="http://github.com/efraimrodrigues/WhaPy" target="_blank">GitHub<img width="2%" src="/files/GitHub-Mark-64px.png"/></a>
 
-## WhaPy: A Python API for Whatsapp Web
-
 This article explains the basis of WhaPy a API for Whatsapp Web that allows chatbots to be created. Please refer to the [documentation](http://whapy.readthedocs.io/) for detailed information on how to use it.
 
 
