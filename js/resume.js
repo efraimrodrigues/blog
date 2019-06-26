@@ -26,3 +26,9 @@
   });
 
 })(jQuery); // End of use strict
+
+function set_action(form) {
+  form.action = "mailto:efraimnaassom@gmail.com?" +
+   "&subject=" + document.getElementById("form-name").value + " - " +  document.getElementById("form-email").value +
+   "&body=" + document.getElementById("form-message").value;
+}
