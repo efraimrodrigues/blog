@@ -98,7 +98,7 @@ T(n) = 2T(n-1) + k
 </pre>
 
 
-Thus, we can conclude this algorithm is O(2<sup>n</sup>) and runs in exponential time, which is not very good because *n* increases to the power of two according to the size of the chessboard. If we take the default chessboard with eight columns and eight rows, the algorithm has to go throw 2<sup>64</sup> nodes.
+Thus, we can conclude this algorithm is O(2<sup>n</sup>) and runs in exponential time, which is not very good because *n* increases to the power of two according to the size of the chessboard. If we take the default chessboard with eight columns and eight rows, the algorithm has to go through 2<sup>64</sup> nodes.
 
 <style>
 pre {
