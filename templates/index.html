@@ -161,6 +161,97 @@
 
 <hr class="m-0">
 
+<script src="https://unpkg.com/vue"></script>
+
+<section class="resume-section p-3 p-lg-5 d-flex flex-column" id="github">
+    <h2 class="mb-5">GitHub</h2>
+    <div class="my-auto">
+      <div id="vue" class="resume-item d-flex flex-column flex-md-row">
+          <div class="resume-content mr-auto">
+            <h3 class="mb-0">Projects</h3>
+            <div v-if="!projects.length" class="subheading mb-3">Loading</div>
+              <div v-for="item in projects" class="subheading mb-3">
+                <div style="text-transform: capitalize;">{{item.name}}</div><a v-bind:href="item.url">{{item.url}}</a>
+              </div>
+          </div>
+          <div class="resume-date text-md-right">
+            <h3>Pull Requests</h3>
+            <div v-if="!pullRequests.length" class="subheading mb-3">Loading</div>
+            <div v-for="item in pullRequests" class="subheading mb-3">
+              <a style="text-transform: capitalize" v-bind:href="'https://github.com' + item.repository_url">{{item.repository}}</a> - <a v-bind:href="item.url">{{item.title}}</a> ({{item.state}})
+            </div>
+          </div>
+      </div>
+    </div>
+</section>
+
+<script>
+new Vue({
+  el: '#vue',
+  data: {
+    projects: [
+    ],
+    pullRequests: [
+    ]
+  },
+  mounted() {
+    url = "https://api.github.com/graphql";
+    token = "cc49ffff1a69794ade08428e20a807688501b2ca"
+
+    paramProjects={
+    headers:{
+      "Authorization": "bearer " + token
+    },
+    body: JSON.stringify({ query : "{ viewer {repositoriesContributedTo(first: 100, contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) {nodes { nameWithOwner}}} }" }),
+    method:"POST"
+    };
+
+    fetch(url, paramProjects)
+    .then(data=>{
+      return data.json()
+    })
+    .then(res=>{
+      contributions = res.data.viewer.repositoriesContributedTo.nodes
+      for(var i in contributions)
+        this.projects.push({name: contributions[i].nameWithOwner.split('/')[1], url: "https://github.com/" + contributions[i].nameWithOwner})
+    })
+    .catch(error=>{
+      this.message = ""
+      console.log(error)
+    });
+
+    paramPullRequests={
+    headers:{
+      "Authorization": "bearer " + token
+    },
+    body: JSON.stringify({ query : "{ viewer {pullRequests(first: 20) { nodes{ title, state, permalink, repository{name}, repository{resourcePath} } } } }" }),
+    method:"POST"
+    };
+
+    fetch(url, paramPullRequests)
+    .then(data=>{
+      return data.json()
+    })
+    .then(res=>{
+      console.log(res)
+      prs = res.data.viewer.pullRequests.nodes
+      for(var i in prs)
+        this.pullRequests.push({title: prs[i].title,
+                                state: prs[i].state,
+                                url: prs[i].permalink,
+                                repository: prs[i].repository.name,
+                                repository_url: prs[i].repository.resourcePath})
+    })
+    .catch(error=>{
+      this.message = ""
+      console.log(error)
+    });
+  }
+})
+</script>
+
+<hr class="m-0">
+
 <section class="resume-section p-3 p-lg-5 d-flex flex-column" id="blog">
     <h1 id="blog">Blog</h1>
     <ul>
